@@ -328,7 +328,7 @@ public class ledObjectTrack {
 //                    Imgproc.HoughCircles(thresholded, circles, Imgproc.CV_HOUGH_GRADIENT, 2, thresholded.height() / 8, 200, 100, 0, 5000);
 //                    Imgproc.findContours(thresholded, circles, thresholded2, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
-                    Imgproc.findContours(thresholded, contours, thresholded2, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+                    Imgproc.findContours(thresholded, contours, thresholded2, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 //                    Imgproc.drawContours(webcam_image, contours, -1, new Scalar(255, 0, 0), 2);
                     Imgproc.drawContours(thresholded, contours, -1, new Scalar(255, 0, 0), 2);
                     circles.release();
@@ -352,24 +352,24 @@ public class ledObjectTrack {
 //                    System.out.println(circles);
 
                     if (dataAddr > 0) {
-                        int maxI = 0;
-                        double maxS = Imgproc.contourArea(contours.get(0));
-                        for (int i = 1; i < contours.size(); i++) {
-//						MatOfPoint2f approx = new MatOfPoint2f();
-//						Imgproc.approxPolyDP(new MatOfPoint2f(contours.get(i).toArray()), approx, 0.01 * Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()), true), true);
-                            double s = Imgproc.contourArea(contours.get(i));
-                            if (s > maxS) {
-                                maxI = i;
-                            }
-//						if (approx.elemSize() > 8 && s > 50000 && s < 10000)
-//							contours2.add(contours.get(i));
-                        }
+//                        int maxI = 0;
+//                        double maxS = Imgproc.contourArea(contours.get(0));
+//                        for (int i = 1; i < contours.size(); i++) {
+////						MatOfPoint2f approx = new MatOfPoint2f();
+////						Imgproc.approxPolyDP(new MatOfPoint2f(contours.get(i).toArray()), approx, 0.01 * Imgproc.arcLength(new MatOfPoint2f(contours.get(i).toArray()), true), true);
+//                            double s = Imgproc.contourArea(contours.get(i));
+//                            if (s > maxS) {
+//                                maxI = i;
+//                            }
+////						if (approx.elemSize() > 8 && s > 50000 && s < 10000)
+////							contours2.add(contours.get(i));
+//                        }
 
-//                        for (int i = 0; i < contours.size(); i++) {
+                        for (int i = 0; i < contours.size(); i++) {
                         Point center = new Point();
                         float[] radius = new float[1];
                         Imgproc.minEnclosingCircle(
-                                new MatOfPoint2f(contours.get(maxI).toArray()),
+                                new MatOfPoint2f(contours.get(i).toArray()),
                                 center, radius);
 //                        System.out.println(radius[0]);
 //                            System.out.println(center);
@@ -383,7 +383,7 @@ public class ledObjectTrack {
 
                             if (center.x > center1.x - radius1 && center.x < center1.x + radius1 &&
                                     center.y > center1.y - radius1 && center.y < center1.y + radius1/* && radius[0] > 20*/) {
-                                contours3.add(contours.get(maxI));
+                                contours3.add(contours.get(i));
 //                                    System.out.println(radius1);
 //                                    System.out.println(radius[0]);
 
@@ -401,14 +401,14 @@ public class ledObjectTrack {
 
 //                                    momx.add(centerX);
 //                                    momy.add(centerY);
-                                momx.add((int) center.x);
-                                momy.add((int) center.y);
+                                momx.add((int) center1.x);
+                                momy.add((int) center1.y);
 
 //                                    dotsPlused++;
                             }
                         }
                     }
-//                    }
+                    }
 
 //                    endregion aaaa
                     contours = contours3;
@@ -566,17 +566,22 @@ public class ledObjectTrack {
                         toRis = 0;
                     for (int i = momx.size() - 1; i > toRis; i--) {
 //                        if (momx.size() > 10)
-//                        double s = Math.abs(Math.pow(momx.get(i) - momx.get(i - 1), 2) + Math.pow(momy.get(i) - momy.get(i - 1), 2));
-////
-////
-//                        System.out.println(s);
-//                        if (s > 500 && i - 1 > 0) {
-//                            momx.remove(i - 1);
-//                            momy.remove(i - 1);
+                        double s = Math.abs(Math.pow(momx.get(i) - momx.get(i - 1), 2) + Math.pow(momy.get(i) - momy.get(i - 1), 2));
+//
+//
+
+//                        if (s > 9000) {
+//                            if (i - 1 > 0) {
+//                                momx.remove(i - 1);
+//                                momy.remove(i - 1);
+//                            }
 //                        } else
+//                            System.out.println(s);
+                            if (s < 3000 || momx.size() < 3) {
 
-                        Imgproc.circle(webcam_image, new Point(momx.get(i), momy.get(i)), 10, new Scalar(0, 255, 255), Core.FILLED);
+    Imgproc.circle(webcam_image, new Point(momx.get(i), momy.get(i)), 10, new Scalar(0, 255, 255), Core.FILLED);
 
+}
 
                     }
 
@@ -584,7 +589,7 @@ public class ledObjectTrack {
 
 
 //
-                    if ((momx.size() > 10) || (counterNotChanching > 2 && momx.size() > 0)) {
+                    if ((momx.size() > 10) || (counterNotChanching >= 2 && momx.size() > 0)) {
                         counterNotChanching = 0;
                         momx.remove(0);
                         momy.remove(0);
