@@ -6,7 +6,7 @@
 
 В режиме дебага (переменная в коде) открывается три окна. Первое окно - желтыми точками рисуется траектория движения цветного шарика, синий круг вокруг контура, который распознался как круг, и красным рисуются реальные контуры, по которым происходила попытка определения является ли объект кругом с помощью метода Хафа. Второе окно - изображение с камеры, переведенное в HSV. Третье окно - маска, которая осталась после выделенных объектов (оранжевых).
 
-# Colorfull Ball Tracking with OpenCV
+# Color Ball Tracking with OpenCV
 
 In this project, the tracking of a colored ball on the image from the webcam is implemented. Yes, just a ball. In many projects that we could find on the Internet, there is simply tracking a colored object, but any object - not just a ball. The project is made in Java (unlike most projects on the Internet made in Python) using the OpenCV library.
 
