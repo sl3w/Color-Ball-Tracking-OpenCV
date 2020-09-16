@@ -10,7 +10,10 @@ import java.util.ArrayList;
 
 public class Main {
     //Switching Debug Mode
-    private static final boolean IS_DEBUGGING = true;
+    private static final boolean IS_DEBUGGING = false;
+    //Switching Only Circles Mode
+    private static final boolean CIRCLES_ONLY = true;
+
     //Counter to track count of dots changing
     private static short counterNotChanching = 0;
     //Counter of bad sigma
@@ -137,35 +140,43 @@ public class Main {
         hsv_maxAr.add(new Scalar(10, 220, 140));
     }
 
-    //Checking i contour to round
-    private static void checkToRound(int i, ArrayList<MatOfPoint> contours, Mat circles,
-                                        ArrayList<MatOfPoint> neededContours, Mat webcam_image) {
+    //Checking i contour to circle
+    private static void checkToCircle(int i, ArrayList<MatOfPoint> contours, Mat circles,
+                                      ArrayList<MatOfPoint> neededContours, Mat webcam_image) {
+
         Point center = new Point();
         float[] radius = new float[1];
         Imgproc.minEnclosingCircle(
                 new MatOfPoint2f(contours.get(i).toArray()),
                 center, radius);
 
-        for (int j = 0; j < circles.cols(); j++) {
-            double[] circle = circles.get(0, j);
-            Point center1 = new Point(Math.round(circle[0]), Math.round(circle[1]));
-            double radius1 = Math.round(circle[2]);
+        if (CIRCLES_ONLY) {
+            for (int j = 0; j < circles.cols(); j++) {
+                double[] circle = circles.get(0, j);
+                Point center1 = new Point(Math.round(circle[0]), Math.round(circle[1]));
+                double radius1 = Math.round(circle[2]);
 
-            if (center.x > center1.x - radius1 && center.x < center1.x + radius1 &&
-                    center.y > center1.y - radius1 && center.y < center1.y + radius1) {
-                neededContours.add(contours.get(i));
+                if (center.x > center1.x - radius1 && center.x < center1.x + radius1 &&
+                        center.y > center1.y - radius1 && center.y < center1.y + radius1) {
+                    neededContours.add(contours.get(i));
 
-                if (IS_DEBUGGING) {
-                    Imgproc.circle(webcam_image, center, (int) radius[0],
-                            new Scalar(255, 0, 0));
+                    if (IS_DEBUGGING) {
+                        Imgproc.circle(webcam_image, center, (int) radius[0],
+                                new Scalar(255, 0, 0));
+                    }
+
+                    trackedX.add((int) center1.x);
+                    trackedY.add((int) center1.y);
+
+                    counterNotChanching = 0;
+                    break;
                 }
-
-                trackedX.add((int) center1.x);
-                trackedY.add((int) center1.y);
-
-                counterNotChanching = 0;
-                break;
             }
+        } else {
+            trackedX.add((int) center.x);
+            trackedY.add((int) center.y);
+
+            counterNotChanching = 0;
         }
     }
 
@@ -208,11 +219,12 @@ public class Main {
 
                 circles = new Mat();
                 circles.release();
-                Imgproc.HoughCircles(mask, circles, Imgproc.CV_HOUGH_GRADIENT, 2, mask.height() / 8, 200, 100, 10, 5000);
+                if (CIRCLES_ONLY)
+                    Imgproc.HoughCircles(mask, circles, Imgproc.CV_HOUGH_GRADIENT, 2, mask.height() / 8, 200, 100, 10, 5000);
 
-                if (circles.dataAddr() > 0) {
+                if (contours.size() > 0 && (circles.dataAddr() > 0 || !CIRCLES_ONLY)) {
                     ArrayList<MatOfPoint> neededContours = new ArrayList<>();
-                    if (IS_MAX_CONTOUR_ONLY) {
+                    if (IS_MAX_CONTOUR_ONLY || !CIRCLES_ONLY) {
                         int maxI = 0;
                         double maxS = Imgproc.contourArea(contours.get(0));
                         for (int i = 1; i < contours.size(); i++) {
@@ -221,10 +233,10 @@ public class Main {
                                 maxI = i;
                             }
                         }
-                        checkToRound(maxI, contours, circles, neededContours, webcam_image);
+                        checkToCircle(maxI, contours, circles, neededContours, webcam_image);
                     } else {
                         for (int i = 0; i < contours.size(); i++) {
-                            checkToRound(i, contours, circles, neededContours, webcam_image);
+                            checkToCircle(i, contours, circles, neededContours, webcam_image);
                         }
                     }
                     contours = neededContours;
@@ -241,7 +253,7 @@ public class Main {
                 for (int i = trackedX.size() - 1; i > toRis; i--) {
                     double sigma = Math.abs(Math.pow(trackedX.get(i) - trackedX.get(i - 1), 2) + Math.pow(trackedY.get(i) - trackedY.get(i - 1), 2));
 
-                    if (sigma < 3000 || trackedX.size() < 3) {
+                    if (sigma < 3000 || trackedX.size() < 3 || !CIRCLES_ONLY) {
                         Imgproc.circle(webcam_image, new Point(trackedX.get(i), trackedY.get(i)), 10, new Scalar(0, 255, 255), Core.FILLED);
                     } else {
                         counterOfBadSigma++;
