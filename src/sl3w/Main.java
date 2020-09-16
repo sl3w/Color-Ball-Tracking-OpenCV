@@ -15,7 +15,7 @@ public class Main {
     private static final boolean CIRCLES_ONLY = true;
 
     //Counter to track count of dots changing
-    private static short counterNotChanching = 0;
+    private static short counterNotChange = 0;
     //Counter of bad sigma
     private static short counterOfBadSigma = 0;
 
@@ -168,7 +168,7 @@ public class Main {
                     trackedX.add((int) center1.x);
                     trackedY.add((int) center1.y);
 
-                    counterNotChanching = 0;
+                    counterNotChange = 0;
                     break;
                 }
             }
@@ -176,7 +176,7 @@ public class Main {
             trackedX.add((int) center.x);
             trackedY.add((int) center.y);
 
-            counterNotChanching = 0;
+            counterNotChange = 0;
         }
     }
 
@@ -185,7 +185,7 @@ public class Main {
         Mat webcam_image, hsv_image, mask, maskCopy, circles;
 
         while (true) {
-            counterNotChanching++;
+            counterNotChange++;
             videoCapture.read(webcam_image = new Mat());
             if (!webcam_image.empty()) {
 
@@ -266,7 +266,7 @@ public class Main {
                     trackedX.remove(0);
                     trackedY.remove(0);
                 }
-                if (counterNotChanching >= 50 || counterOfBadSigma > 10) {
+                if (counterNotChange >= 50 || counterOfBadSigma > 10) {
                     counterOfBadSigma = 0;
                     trackedX.clear();
                     trackedY.clear();
