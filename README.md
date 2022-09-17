@@ -1,4 +1,4 @@
-# Отслеживание цветного шарика с использованием OpenCV
+# Отслеживание цветного шарика на видео с использованием OpenCV
 
 В данном проекте реализован отслеживание цветного шарика на изображении с вебкамеры. Именно только шарика. Во многих проектах, что удавалось найти на просторах интернета, присутствует просто отслеживание цветного объекта, но любого объекта - не только шарика. Проект сделан на Java (в отличие также об большинства проектов в интернете, сделанных на Python) с использованием библиотеки OpenCV.
 
@@ -6,7 +6,7 @@
 
 В режиме дебага (переменная в коде) открывается три окна. Первое окно - желтыми точками рисуется траектория движения цветного шарика, синий круг вокруг контура, который распознался как круг, и красным рисуются реальные контуры, по которым происходила попытка определения является ли объект кругом с помощью метода Хафа. Второе окно - изображение с камеры, переведенное в HSV. Третье окно - маска, которая осталась после поиска объектов (оранжевых).
 
-# Color Ball Tracking with OpenCV
+# Color Ball Tracking on video with OpenCV
 
 In this project, the tracking of a colored ball on the image from the webcam is implemented. Yes, only a ball. In many projects that we could find on the Internet, there is tracking a colored objects, but all objects - not a ball only. The project is made in Java (unlike most projects on the Internet made in Python) using the OpenCV library.
 
